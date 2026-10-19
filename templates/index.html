@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prediksi Berat Ikan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light"> 
+</nav>
+
+<div class="container pb-5" style="max-width: 860px;">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Estimasi berat ikan dari panjangnya</h5>
+      <p class="text-muted">
+        Aplikasi ini memakai Regresi Linear Sederhana yang dilatih dari data penjualan ikan di pasar
+        (7 spesies). Masukkan panjang ikan (diukur dari ujung kepala ke ujung ekor, dalam cm).
+      </p>
+
+      <form method="post" class="row g-2">
+        <div class="col-sm-8">
+          <label for="panjang" class="form-label">Masukkan Panjang Ikan (cm)</label>
+          <input type="number" step="0.1" min="{{ meta.min_length }}" max="{{ meta.max_length }}"
+                 class="form-control" id="panjang" name="panjang" value="{{ nilai_input }}"
+                 placeholder="contoh: 30" required>
+        </div>
+        <div class="col-sm-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Prediksi</button>
+        </div>
+      </form>
+
+      {% if error %}
+      <div class="alert alert-danger mt-3 mb-0">{{ error }}</div>
+      {% endif %}
+
+      {% if hasil %}
+      <div class="alert alert-success mt-3 mb-0">
+        <div class="small text-uppercase">Estimasi berat ikan</div>
+        <div class="display-6">{{ "%.0f"|format(hasil.berat) }} gram</div>
+        <div class="small">untuk panjang {{ hasil.panjang }} cm &middot; perkiraan kasar, rata-rata meleset sekitar &plusmn;{{ "%.0f"|format(meta.rmse) }} gram</div>
+      </div>
+      {% endif %}
+
+      {% if peringatan %}
+      <div class="alert alert-warning mt-3 mb-0">{{ peringatan }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Tentang model</h5>
+      <p class="mb-2">Persamaan: <code>Berat = {{ "%.2f"|format(meta.intercept) }} + {{ "%.2f"|format(meta.coef) }} &times; Panjang</code></p>
+      <div class="row text-center g-2">
+        <div class="col-4"><div class="border rounded p-2"><div class="small text-muted">R&sup2;</div><strong>{{ "%.2f"|format(meta.r2) }}</strong></div></div>
+        <div class="col-4"><div class="border rounded p-2"><div class="small text-muted">RMSE</div><strong>{{ "%.1f"|format(meta.rmse) }} g</strong></div></div>
+        <div class="col-4"><div class="border rounded p-2"><div class="small text-muted">MAE</div><strong>{{ "%.1f"|format(meta.mae) }} g</strong></div></div>
+      </div>
+      <p class="text-muted small mt-3 mb-0">
+        Setiap tambahan 1 cm panjang ikan diperkirakan menambah berat rata-rata sekitar {{ "%.1f"|format(meta.coef) }} gram.
+        Hubungan panjang dan berat aslinya agak melengkung, sehingga model linear kurang akurat untuk ikan yang sangat kecil.
+      </p>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6"><img class="img-fluid rounded shadow-sm" src="{{ url_for('static', filename='img/regression_line.png') }}" alt="Garis regresi"></div>
+    <div class="col-md-6"><img class="img-fluid rounded shadow-sm" src="{{ url_for('static', filename='img/actual_vs_pred.png') }}" alt="Aktual vs prediksi"></div>
+  </div>
+</div>
+</body>
+</html>
